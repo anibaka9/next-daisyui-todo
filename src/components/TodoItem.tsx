@@ -3,17 +3,19 @@
 import { useState, useEffect, useRef } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import React from "react";
+import useOptimisticToggle from "@/hooks/useOptimisticToggle";
 
 interface TodoItemProps {
   text: string;
   isDone: boolean;
-  deleteTodo: () => void;
-  saveTodo: (text: string) => void;
-  setIsDone: (value: boolean) => void;
+  deleteTodo: () => Promise<void>;
+  saveTodo: (text: string) => Promise<void>;
+  setIsDone: (value: boolean) => Promise<unknown>;
 }
 
 export function TodoItem({
   text,
+  isDone,
   saveTodo,
   deleteTodo,
   setIsDone,
@@ -24,7 +26,15 @@ export function TodoItem({
     setEditText(text);
   }, [text]);
 
+  const [toggle, setToggle] = useOptimisticToggle({
+    initialValue: isDone,
+    action: setIsDone,
+  });
+
   const modalRef = useRef<HTMLDialogElement>(null);
+
+  const [deleteIsLoading, setDeleteIsLoading] = useState(false);
+  const [editTextIsLoading, setEditTextIsLoading] = useState(false);
 
   return (
     <div className="card shadow mt-5">
@@ -32,29 +42,36 @@ export function TodoItem({
         <input
           type="checkbox"
           className="checkbox mr-4"
-          onChange={(event) => {
-            setIsDone(event.target.checked);
-          }}
+          onChange={setToggle}
+          checked={toggle}
         />
         {isEditing ? (
           <form
             className="flex w-full"
-            onSubmit={(action) => {
+            onSubmit={async (action) => {
               action.preventDefault();
-              saveTodo(editText);
+              setEditTextIsLoading(true);
+              await saveTodo(editText);
+              setEditTextIsLoading(false);
               setIsEditing(false);
             }}
           >
             <input
               className="input flex-1 input-bordered mr-4"
               defaultValue={text}
+              onChange={(e) => setEditText(e.target.value)}
             />
-            <button className="btn">Save</button>
+            <button type="submit" disabled={editTextIsLoading} className="btn">
+              {editTextIsLoading && (
+                <span className="loading loading-spinner"></span>
+              )}
+              Save
+            </button>
           </form>
         ) : (
           <>
             <p
-              className="flex-1"
+              className={`flex-1 ${toggle ? "line-through" : ""}`}
               onDoubleClick={() => {
                 setIsEditing(true);
               }}
@@ -79,12 +96,23 @@ export function TodoItem({
               <form
                 method="dialog"
                 className="modal-box"
-                onSubmit={() => deleteTodo()}
+                onSubmit={async () => {
+                  setDeleteIsLoading(true);
+                  await deleteTodo();
+                  setDeleteIsLoading(false);
+                }}
               >
                 <h3 className="font-bold text-lg">Hello!</h3>
                 <p className="py-4">Delete Todo?</p>
                 <div className="modal-action">
-                  <button type="submit" className="btn btn-primary">
+                  <button
+                    disabled={deleteIsLoading}
+                    type="submit"
+                    className="btn btn-primary"
+                  >
+                    {deleteIsLoading && (
+                      <span className="loading loading-spinner"></span>
+                    )}
                     Delete
                   </button>
                   <button

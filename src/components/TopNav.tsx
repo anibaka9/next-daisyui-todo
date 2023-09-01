@@ -1,10 +1,14 @@
 import Image from "next/image";
+import Link from "next/link";
+import LogoutLink from "./LogoutLink";
 
 export default function TopNav() {
   return (
     <div className="navbar bg-base-00">
       <div className="flex-1">
-        <a className="btn btn-ghost normal-case text-xl">Todo</a>
+        <Link href="/" className="btn btn-ghost normal-case text-xl">
+          Todo
+        </Link>
       </div>
       <div className="flex-none gap-2">
         <div className="form-control">
@@ -30,13 +34,13 @@ export default function TopNav() {
             className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
           >
             <li>
-              <a>Profile</a>
+              <Link href="/profile">Profile</Link>
             </li>
             <li>
-              <a>Settings</a>
+              <Link href="/settings">Settings</Link>
             </li>
             <li>
-              <a>Logout</a>
+              <LogoutLink>Logout</LogoutLink>
             </li>
           </ul>
         </div>

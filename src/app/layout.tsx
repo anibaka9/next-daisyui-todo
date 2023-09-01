@@ -1,7 +1,9 @@
-import TopNav from "@/components/TopNav";
+"use client";
+
 import "./globals.css";
 import type { Metadata } from "next";
 import Footer from "@/components/Footer";
+import { AuthContextProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Todo",
@@ -16,9 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="min-h-screen">
       <body className="min-h-screen">
-        <TopNav />
-        {children}
-        <Footer />
+        <AuthContextProvider>
+          {children}
+          <Footer />
+        </AuthContextProvider>
       </body>
     </html>
   );

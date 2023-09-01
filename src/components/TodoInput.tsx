@@ -1,27 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
 
-import { db } from "@/firebase";
+type TodoInputProps = {
+  addTodo: (inputText: string) => Promise<void>;
+};
 
-export default function TodoInput() {
+export default function TodoInput({ addTodo }: TodoInputProps) {
   const [inputValue, setInputValue] = useState("");
-  const saveTodo = async () => {
-    try {
-      const docRef = await addDoc(collection(db, "todos"), {
-        text: inputValue,
-        idDone: false,
-      });
-    } catch (e) {}
-    setInputValue("");
-  };
+
+  const [addTodoIsLoading, setAddTodoIsLoading] = useState(false);
+
   return (
     <form
       className="flex gap-4"
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
-        saveTodo();
+        setAddTodoIsLoading(true);
+        await addTodo(inputValue);
+        setInputValue("");
+        setAddTodoIsLoading(false);
       }}
     >
       <input
@@ -32,8 +30,10 @@ export default function TodoInput() {
         className="w-full input input-bordered"
         placeholder="Whats needs to be done?"
         type="text"
+        required
       />
       <button type="submit" className="btn">
+        {addTodoIsLoading && <span className="loading loading-spinner"></span>}
         Create Todo
       </button>
     </form>
