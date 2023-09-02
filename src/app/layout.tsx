@@ -16,10 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="min-h-screen">
       <body className="min-h-screen">
-        <AuthContextProvider>
-          {children}
-          <Footer />
-        </AuthContextProvider>
+        <AuthContextProvider>{children}</AuthContextProvider>
       </body>
     </html>
   );
