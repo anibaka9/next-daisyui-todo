@@ -7,41 +7,52 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  onSnapshot,
+  serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 import { TodoItem } from "./TodoItem";
-import { TodoType } from "@/types/todo";
+import { TodoType, newTodoType } from "@/types/todo";
 import TodoInput from "./TodoInput";
 
 export default function TodoList() {
   const [todos, setTodos] = useState<TodoType[]>([]);
-  const fetchPost = async () => {
+  const fetchPost = () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "todos"));
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as TodoType[];
-      setTodos(newData);
-      console.log(newData);
+      const unsub = onSnapshot(collection(db, "todos"), (querySnapshot) => {
+        const newData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        })) as TodoType[];
+        setTodos(newData);
+        console.log(newData);
+      });
+      return unsub;
     } catch (err) {
       console.log(err);
+      return null;
     }
   };
 
   useEffect(() => {
-    fetchPost();
+    const unsub = fetchPost();
+    return () => {
+      if (unsub) {
+        unsub();
+      }
+    };
   }, []);
 
   const addTodo = async (inputValue: string) => {
+    const newTodo: newTodoType = {
+      text: inputValue,
+      isDone: false,
+      timestamp: serverTimestamp(),
+    };
     try {
-      await addDoc(collection(db, "todos"), {
-        text: inputValue,
-        isDone: false,
-      });
-      await fetchPost();
+      addDoc(collection(db, "todos"), newTodo);
     } catch (err) {
       console.log(err);
     }
@@ -51,7 +62,6 @@ export default function TodoList() {
     const todoRef = doc(db, "todos", id);
     try {
       await updateDoc(todoRef, { isDone });
-      await fetchPost();
       return !isDone;
     } catch (err) {
       console.log(err);
@@ -62,18 +72,15 @@ export default function TodoList() {
   const deleteTodo = async (id: string) => {
     try {
       await deleteDoc(doc(db, "todos", id));
-      await fetchPost();
     } catch (err) {
       console.log(err);
     }
   };
 
   const saveTodo = async (id: string, text: string) => {
-    console.log("🚀 ~ file: TodoList.tsx:72 ~ saveTodo ~ text:", text);
     const todoRef = doc(db, "todos", id);
     try {
-      await updateDoc(todoRef, { text });
-      await fetchPost();
+      updateDoc(todoRef, { text });
     } catch (err) {
       console.log(err);
     }
@@ -87,14 +94,14 @@ export default function TodoList() {
           key={todo.id}
           text={todo.text}
           isDone={todo.isDone}
-          saveTodo={async (text) => {
-            await saveTodo(todo.id, text);
+          saveTodo={(text) => {
+            saveTodo(todo.id, text);
           }}
           deleteTodo={async () => {
-            await deleteTodo(todo.id);
+            deleteTodo(todo.id);
           }}
           setIsDone={(value) => {
-            return setIsDone(todo.id, value);
+            setIsDone(todo.id, value);
           }}
         />
       ))}

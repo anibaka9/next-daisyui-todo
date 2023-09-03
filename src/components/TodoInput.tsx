@@ -3,23 +3,19 @@
 import { useState } from "react";
 
 type TodoInputProps = {
-  addTodo: (inputText: string) => Promise<void>;
+  addTodo: (inputText: string) => void;
 };
 
 export default function TodoInput({ addTodo }: TodoInputProps) {
   const [inputValue, setInputValue] = useState("");
-
-  const [addTodoIsLoading, setAddTodoIsLoading] = useState(false);
 
   return (
     <form
       className="flex gap-4"
       onSubmit={async (event) => {
         event.preventDefault();
-        setAddTodoIsLoading(true);
-        await addTodo(inputValue);
+        addTodo(inputValue);
         setInputValue("");
-        setAddTodoIsLoading(false);
       }}
     >
       <input
@@ -33,7 +29,6 @@ export default function TodoInput({ addTodo }: TodoInputProps) {
         required
       />
       <button type="submit" className="btn">
-        {addTodoIsLoading && <span className="loading loading-spinner"></span>}
         Create Todo
       </button>
     </form>
