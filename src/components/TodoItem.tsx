@@ -74,13 +74,13 @@ export function TodoItem({
             >
               {text}
             </p>
-            <button className="btn btn-circle btn-ghost">
-              <PencilIcon
-                className="h-4 w-4"
-                onClick={() => {
-                  setIsEditing(true);
-                }}
-              />
+            <button
+              className="btn btn-circle btn-ghost"
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            >
+              <PencilIcon className="h-4 w-4" />
             </button>
             <button
               className="btn btn-circle btn-ghost"

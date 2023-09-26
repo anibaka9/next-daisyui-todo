@@ -1,9 +1,11 @@
 "use client";
 
-import { useAuthContext } from "@/context/AuthContext";
+import { useAuthState } from "react-firebase-hooks/auth";
+
+import { auth } from "@/firebase/config";
 
 export default function ProfilePage() {
-  const { user } = useAuthContext();
+  const [user] = useAuthState(auth);
 
   return (
     <>

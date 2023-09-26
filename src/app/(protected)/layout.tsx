@@ -1,20 +1,22 @@
 "use client";
 
+import { ReactNode, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
+
+import { auth } from "@/firebase/config";
 import LoadingPage from "@/components/LoadingPage";
 import TopNav from "@/components/TopNav";
-import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { ReactNode, useEffect } from "react";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
-  const { user } = useAuthContext();
+  const [user, loading] = useAuthState(auth);
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) router.push("/login");
-  }, [router, user]);
+    if (!user && !loading) router.push("/login");
+  }, [router, loading, user]);
 
-  if (!user) {
+  if (loading || !user) {
     return <LoadingPage />;
   }
   return (

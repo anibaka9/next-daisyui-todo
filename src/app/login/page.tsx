@@ -1,8 +1,10 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import signIn from "@/firebase/auth/signin";
 import Link from "next/link";
+
+import signIn from "@/firebase/auth/signin";
 
 export default function Login() {
   const [email, setEmail] = useState("");
