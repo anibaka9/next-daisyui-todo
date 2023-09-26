@@ -6,12 +6,14 @@ import {
   collection,
   deleteDoc,
   doc,
+  orderBy,
   query,
   serverTimestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 import type { newTodoType, TodoType } from "@/types/todo";
 
@@ -23,6 +25,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function TodoList() {
   const [user] = useAuthState(auth);
+  const [parent] = useAutoAnimate();
 
   const [userTodoListInfoData, userTodoListInfoLoading] = useCollection(
     user?.uid
@@ -45,7 +48,10 @@ export default function TodoList() {
 
   const [todoData, loading] = useCollection(
     userTodoListId
-      ? collection(db, "todoLists", userTodoListId, "todos")
+      ? query(
+          collection(db, "todoLists", userTodoListId, "todos"),
+          orderBy("timestamp", "desc")
+        )
       : undefined
   );
 
@@ -107,23 +113,25 @@ export default function TodoList() {
     <div>
       <TodoInput addTodo={addTodo} />
       {loading && <LoadingPage />}
-      {todos &&
-        todos.map((todo) => (
-          <TodoItem
-            key={todo.id}
-            text={todo.text}
-            isDone={todo.isDone}
-            saveTodo={(text) => {
-              saveTodo(todo.id, text);
-            }}
-            deleteTodo={async () => {
-              deleteTodo(todo.id);
-            }}
-            setIsDone={(value) => {
-              setIsDone(todo.id, value);
-            }}
-          />
-        ))}
+      <div ref={parent}>
+        {todos &&
+          todos.map((todo) => (
+            <TodoItem
+              key={todo.id}
+              text={todo.text}
+              isDone={todo.isDone}
+              saveTodo={(text) => {
+                saveTodo(todo.id, text);
+              }}
+              deleteTodo={async () => {
+                deleteTodo(todo.id);
+              }}
+              setIsDone={(value) => {
+                setIsDone(todo.id, value);
+              }}
+            />
+          ))}
+      </div>
     </div>
   );
 }

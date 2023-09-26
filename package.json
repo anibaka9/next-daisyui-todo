@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.0",
     "@heroicons/react": "^2.0.18",
     "@types/node": "20.5.2",
     "@types/react": "18.2.20",
