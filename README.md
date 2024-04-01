@@ -7,8 +7,8 @@ This is a simple todo list written in nextjs with typescript and daisyui for sty
 ## Installation
 
 1. Clone the repository.
-2. Install dependencies with `npm install`.
-3. Run the project with `npm run dev`.
+2. Install dependencies with `bun install`.
+3. Run the project with `bun run dev`.
 
 ## Usage
 
